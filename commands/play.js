@@ -25,6 +25,19 @@ module.exports = {
             guildId: message.member.guild.id,
             adapterCreator: message.member.guild.voiceAdapterCreator,
         });
-    },
-
+        
+        const stream = ytdl(message.options.getString('url'), { filter: 'audioonly' });
+        const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
+        const player = createAudioPlayer();
+        player.play(resource);
+        connection.subscribe(player);
+        player.on(AudioPlayerStatus.Buffering, () => console.log('buffering'))
+        player.on(AudioPlayerStatus.Playing, () => console.log('playing'))
+        player.on('error', error => {
+            console.error(`Exception: ${error.message}`)
+            player.stop(true)
+        })
+        player.on(AudioPlayerStatus.Idle, () => connection.destroy());
+        return message.reply('Playing')
+    }
 }
