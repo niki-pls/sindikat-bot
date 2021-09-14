@@ -16,21 +16,15 @@ module.exports = {
         .setDescription('Plays audio from a YouTube video.')
         .addStringOption(option => option.setName('url').setDescription('Youtube video url.')),
 
-    async execute(msg) {
+    async execute(message) {
+        console.log(message.member.guild.id)
+        console.log(message.member.voice.channel.id)
+        console.log(message.options.getString('url'))
         const connection = joinVoiceChannel({
-            channelId: msg.member.voice.channel,
-            guildId: msg.member.guild.id,
-            adapterCreator: msg.member.guild.voiceAdapterCreator,
+            channelId: message.member.voice.channel.id,
+            guildId: message.member.guild.id,
+            adapterCreator: message.member.guild.voiceAdapterCreator,
         });
-        
-        const stream = ytdl(msg.options.getString('url'), { filter: 'audioonly' });
-        const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
-        const player = createAudioPlayer();
-        
-        player.play(resource);
-        connection.subscribe(player);
-        
-        player.on(AudioPlayerStatus.Idle, () => connection.destroy());
     },
 
 }
