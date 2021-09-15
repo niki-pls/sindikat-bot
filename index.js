@@ -7,6 +7,11 @@ const client = new Client({ intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
+
+const audioPlayerStore = new Map();
+
+
+
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	client.commands.set(command.data.name, command);
