@@ -18,11 +18,11 @@ module.exports = {
 
     async execute(message) {
         const { voice, guild } =  message.member
+        const videoURL = message.options.getString('url')
 
-        console.log(guild.id)
-        console.log(voice.channel.id)
-        console.log(message.options.getString('url'))
-
+        console.log(`Guild id: ${guild.id}`)
+        console.log(`Voice channel id: ${voice.channel.id}`)
+        console.log(`Video URL: ${videoURL}`)
 
         if (!voice) {
             return message.reply({content: 'You need to be in a voice channel', ephemeral: true})
@@ -34,7 +34,7 @@ module.exports = {
             adapterCreator: message.member.guild.voiceAdapterCreator,
         });
 
-        const stream = ytdl(message.options.getString('url'), { filter: 'audioonly' });
+        const stream = ytdl(videoURL, { filter: 'audioonly' });
         const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
         const player = createAudioPlayer();
         player.play(resource);
