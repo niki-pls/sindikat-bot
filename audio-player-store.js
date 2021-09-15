@@ -8,8 +8,12 @@ class AudioPlayerStore {
     }
 
 
-    get(id){
+    get(id) {
         return this.map.get(id)
+    }
+
+    remove(id) {
+        return this.map.delete(id)
     }
 
     create(id, connection) {
@@ -20,10 +24,16 @@ class AudioPlayerStore {
             player.stop(true)
         })
 
-        player.on(AudioPlayerStatus.Idle, () => connection.destroy());
-
+        
         connection.on(VoiceConnectionStatus.Disconnected, () => {
-            return player.stop(true)
+            
+            if (this.remove(id)) {
+                
+                console.log(`disconnecting from ${id}`);
+                console.log(this.map.entries());
+                
+                return player.stop(true)
+            }
         })
 
         connection.subscribe(player);
