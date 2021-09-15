@@ -7,8 +7,8 @@ const {
 	createAudioPlayer,
 	createAudioResource,
 	joinVoiceChannel,
+    VoiceConnectionStatus,
 } = require('@discordjs/voice');
-const { execute } = require('./server');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -37,7 +37,14 @@ module.exports = {
             console.error(`Exception: ${error.message}`)
             player.stop(true)
         })
+        
+        connection.on(VoiceConnectionStatus.Disconnected, () => {
+            console.log('destroying connection')
+            return player.stop(true)
+        })
+        
         player.on(AudioPlayerStatus.Idle, () => connection.destroy());
+        
         return message.reply('Playing')
     }
 }
