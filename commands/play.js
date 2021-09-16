@@ -1,10 +1,9 @@
 const ytdl = require('ytdl-core');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const audioPlayerStore = require('../audio-player-store');
+const { stopwatch, logger } = require('../utils/utils.js');
 const {
-    AudioPlayerStatus,
     StreamType,
-    createAudioPlayer,
     createAudioResource,
     joinVoiceChannel,
     VoiceConnectionStatus,
@@ -16,36 +15,38 @@ module.exports = {
         .setDescription('Plays audio from a YouTube video.')
         .addStringOption(option => option.setName('url').setDescription('Youtube video url.')),
 
-    async execute(message) {
-        const { voice, guild } = message.member
+    async execute (message) {
+        const { voice, guild } = message.member;
 
         if (!voice) {
-            return message.reply({ content: 'You need to be in a voice channel', ephemeral: true })
+            return message.reply({ content: 'You need to be in a voice channel', ephemeral: true });
         }
 
-        const videoURL = message.options.getString('url')
+        const videoURL = message.options.getString('url');
         const stream = ytdl(videoURL, { filter: 'audioonly' });
-        const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
 
         const connection = joinVoiceChannel({
             channelId: voice.channel.id,
             guildId: guild.id,
             adapterCreator: message.member.guild.voiceAdapterCreator,
-        })
+        });
 
         console.log('/play voice channel id: ', voice.channel.id);
 
-        const player = await new Promise((resolve) => {
-            connection.on(VoiceConnectionStatus.Ready, () => {
-                audioPlayerStore.create(voice.channel.id, connection)
-                resolve(audioPlayerStore.get(voice.channel.id))
-            })
-        })
+        connection.on(VoiceConnectionStatus.Signalling, () => logger.info(`Signalling for connection: ${voice.channel.id} : ${voice.channel.name}`));
+        connection.on(VoiceConnectionStatus.Connecting, () => logger.info(`Connecting for connection: ${voice.channel.id} : ${voice.channel.name}`));
+        connection.on(VoiceConnectionStatus.Disconnected, () => logger.info(`Disconnected for connection: ${voice.channel.id} : ${voice.channel.name}`));
+        connection.on(VoiceConnectionStatus.Destroyed, () => logger.info(`Destroyed for connection: ${voice.channel.id} : ${voice.channel.name}`));
 
-        player.play(resource);
+        connection.on(VoiceConnectionStatus.Ready, () => {
+            const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
+            const player = audioPlayerStore.create(voice.channel.id, connection);
+            player.play(resource);
+            logger.info(`Connection ready for ${voice.channel.id} : ${voice.channel.name}`);
+            console.log(audioPlayerStore.map.keys());
 
-        console.log(audioPlayerStore.map.entries());
-
-        return message.reply('Playing')
-    }
-}
+            console.log(stopwatch.stop());
+            return message.reply('Playing');
+        });
+    },
+};
