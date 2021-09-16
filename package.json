@@ -1,4 +1,23 @@
 {
+  "name": "sindikat-bot",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start index.js --name \"Sindibot\" --watch --attach",
+    "stop": "pm2 stop index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niki-pls/sindikat-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/niki-pls/sindikat-bot/issues"
+  },
+  "homepage": "https://github.com/niki-pls/sindikat-bot#readme",
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
     "@discordjs/opus": "^0.5.3",
@@ -8,6 +27,7 @@
     "discord.js": "^13.1.0",
     "libsodium": "^0.7.9",
     "libsodium-wrappers": "^0.7.9",
+    "pm2": "^5.1.1",
     "ytdl-core": "^4.9.1"
   },
   "devDependencies": {
