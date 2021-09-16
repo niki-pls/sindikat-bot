@@ -35,7 +35,6 @@ module.exports = {
 
         connection.on(VoiceConnectionStatus.Signalling, () => logger.info(`Signalling for connection: ${voice.channel.id} : ${voice.channel.name}`));
         connection.on(VoiceConnectionStatus.Connecting, () => logger.info(`Connecting for connection: ${voice.channel.id} : ${voice.channel.name}`));
-        connection.on(VoiceConnectionStatus.Disconnected, () => logger.info(`Disconnected for connection: ${voice.channel.id} : ${voice.channel.name}`));
         connection.on(VoiceConnectionStatus.Destroyed, () => logger.info(`Destroyed for connection: ${voice.channel.id} : ${voice.channel.name}`));
 
         connection.on(VoiceConnectionStatus.Ready, () => {
@@ -45,7 +44,7 @@ module.exports = {
             logger.info(`Connection ready for ${voice.channel.id} : ${voice.channel.name}`);
             console.log(audioPlayerStore.map.keys());
 
-            console.log(stopwatch.stop());
+            stopwatch.stop();
             return message.reply('Playing');
         });
     },

@@ -22,7 +22,6 @@ class Stopwatch {
         if (!this.stopTime) {
             return this.stop();
         }
-
         return (this.stopTime - this.startTime) / 1000;
     }
 }
