@@ -31,13 +31,9 @@ module.exports = {
             adapterCreator: message.member.guild.voiceAdapterCreator,
         });
 
-        console.log('/play voice channel id: ', voice.channel.id);
+        logger.info('/play voice channel id: ', voice.channel.id);
 
-        connection.on(VoiceConnectionStatus.Signalling, () => logger.info(`Signalling for connection: ${voice.channel.id} : ${voice.channel.name}`));
-        connection.on(VoiceConnectionStatus.Connecting, () => logger.info(`Connecting for connection: ${voice.channel.id} : ${voice.channel.name}`));
-        connection.on(VoiceConnectionStatus.Destroyed, () => logger.info(`Destroyed for connection: ${voice.channel.id} : ${voice.channel.name}`));
-
-        connection.on(VoiceConnectionStatus.Ready, () => {
+        connection.once(VoiceConnectionStatus.Ready, () => {
             const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
             const player = audioPlayerStore.create(voice.channel.id, connection);
             player.play(resource);
