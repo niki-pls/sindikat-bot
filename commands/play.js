@@ -9,11 +9,13 @@ const {
     VoiceConnectionStatus,
 } = require('@discordjs/voice');
 
+const metadata = new SlashCommandBuilder()
+    .setName('play')
+    .setDescription('Plays audio from a YouTube video.')
+    .addStringOption(option => option.setName('url').setDescription('Youtube video url.'));
+
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('play')
-        .setDescription('Plays audio from a YouTube video.')
-        .addStringOption(option => option.setName('url').setDescription('Youtube video url.')),
+    metadata,
 
     async execute (message) {
         const { voice, guild } = message.member;

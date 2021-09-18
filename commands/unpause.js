@@ -1,10 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const AudioPlayerStore = require('../audio-player-store');
 
+const metadata = new SlashCommandBuilder()
+    .setName('unpause')
+    .setDescription('Unpauses playback.');
+
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('unpause')
-        .setDescription('Unpauses playback.'),
+    metadata,
 
     async execute (message) {
         const player = AudioPlayerStore.get(message.member.voice.channel.id);
