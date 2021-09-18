@@ -1,4 +1,5 @@
-const { createAudioPlayer, VoiceConnectionStatus } = require('@discordjs/voice');
+const { VoiceConnectionStatus } = require('@discordjs/voice');
+const createAudioPlayerWithQueue = require('./audio-player');
 const { logger } = require('./utils/utils');
 
 class AudioPlayerStore {
@@ -16,7 +17,7 @@ class AudioPlayerStore {
     }
 
     create (id, connection) {
-        const player = createAudioPlayer();
+        const player = createAudioPlayerWithQueue();
 
         player.on('error', error => {
             console.error(`Exception: ${error.message}`);
