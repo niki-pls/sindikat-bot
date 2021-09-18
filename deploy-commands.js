@@ -1,8 +1,8 @@
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { clientId, guildId, token } = require('./config.json');
-
-const commands = getCommands().map(command => command.metadata.toJSON());
+const { utils } = require('./utils/utils.js');
+const commands = utils.getCommands().map(command => command.metadata.toJSON());
 
 const rest = new REST({ version: '9' }).setToken(token);
 
@@ -14,7 +14,8 @@ const rest = new REST({ version: '9' }).setToken(token);
         );
 
         console.log('Successfully registered application commands.');
-    } catch (error) {
+    }
+    catch (error) {
         console.error(error);
     }
 })();

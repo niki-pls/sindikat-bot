@@ -42,7 +42,7 @@ class Logger {
     }
 }
 
-function getCommands() {
+function getCommands () {
     return fs.readdirSync('./commands')
         .filter(file => file.endsWith('.js'))
         .map(file => require(`./commands/${file}`));
