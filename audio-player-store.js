@@ -1,5 +1,5 @@
 const { VoiceConnectionStatus } = require('@discordjs/voice');
-const createAudioPlayerWithQueue = require('./audio-player');
+const AudioPlayerWithQueue = require('./audio-player');
 const { logger } = require('./utils/utils');
 
 class AudioPlayerStore {
@@ -16,20 +16,27 @@ class AudioPlayerStore {
     }
 
     create (id, connection) {
-        const player = createAudioPlayerWithQueue();
+        if (this.get(id)) {
+            return this.get(id);
+        }
+        const player = new AudioPlayerWithQueue();
         this._setupPlayer(player, connection);
         this.map.set(id, player);
 
         return player;
     }
 
-    _setupPlayer(player, connection) {
+    _setupPlayer (player, connection) {
         player.on('error', error => {
             console.error(`Exception: ${error.message}`);
             player.stop(true);
         });
 
-        connection.on(VoiceConnectionStatus.Disconnected, () => {
+        connection.on(VoiceConnectionStatus.Ready, () => {
+            player.isReady = true;
+        });
+
+        connection.on(VoiceConnectionStatus.Disconnected, (id) => {
             if (this.remove(id)) {
                 logger.info(`disconnecting from ${id}`);
                 console.log(this.map.entries());
