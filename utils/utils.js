@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 class Stopwatch {
     constructor () {
         this.startTime = null;
@@ -40,7 +42,13 @@ class Logger {
     }
 }
 
+function getCommands() {
+    return fs.readdirSync('./commands')
+        .filter(file => file.endsWith('.js'))
+        .map(file => require(`./commands/${file}`));
+}
+
 const stopwatch = new Stopwatch();
 const logger = new Logger();
 
-module.exports = { stopwatch, logger };
+module.exports = { stopwatch, logger, getCommands };

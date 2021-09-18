@@ -7,7 +7,6 @@ class AudioPlayerStore {
         this.map = new Map();
     }
 
-
     get (id) {
         return this.map.get(id);
     }
@@ -18,12 +17,17 @@ class AudioPlayerStore {
 
     create (id, connection) {
         const player = createAudioPlayerWithQueue();
+        this._setupPlayer(player, connection);
+        this.map.set(id, player);
 
+        return player;
+    }
+
+    _setupPlayer(player, connection) {
         player.on('error', error => {
             console.error(`Exception: ${error.message}`);
             player.stop(true);
         });
-
 
         connection.on(VoiceConnectionStatus.Disconnected, () => {
             if (this.remove(id)) {
@@ -35,13 +39,8 @@ class AudioPlayerStore {
         });
 
         connection.subscribe(player);
-
-        this.map.set(id, player);
-
-        return player;
     }
 }
-
 
 const audioPlayerStore = new AudioPlayerStore();
 

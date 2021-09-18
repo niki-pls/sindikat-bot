@@ -1,37 +1,45 @@
-const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
+const { stopwatch, getCommands } = require('./utils/utils.js');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
-
-const { stopwatch } = require('./utils/utils.js');
+const client = new Client({
+    intents: [
+        Intents.FLAGS.GUILD_VOICE_STATES,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILDS
+    ]
+});
 
 client.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.data.name, command);
-}
+getCommands().forEach(command => {
+    client.commands.set(command.metadata.name, command);
+});
 
 client.once('ready', () => {
     console.log('Ready!');
 });
 
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isCommand()) {
+        return;
+    }
+
     stopwatch.start('ExecutePlay');
     const command = client.commands.get(interaction.commandName);
 
-    if (!command) return;
+    if (!command) {
+        return;
+    }
 
     try {
         await command.execute(interaction);
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
-        return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        return interaction.reply({
+            content: 'There was an error while executing this command!',
+            ephemeral: true
+        });
     }
 });
 
