@@ -1,4 +1,5 @@
 const fs = require('fs');
+const ytSearch = require('@citoyasha/yt-search');
 
 class Stopwatch {
     constructor() {
@@ -52,7 +53,13 @@ function sleep (milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
+async function searchYoutube(query) {
+    const result = await ytSearch.search(query, 1);
+    const videoUrl = result[0].link;
+    return videoUrl;
+}
+
 const stopwatch = new Stopwatch();
 const logger = new Logger();
 
-module.exports = { stopwatch, logger, getCommands, sleep };
+module.exports = { stopwatch, logger, getCommands, sleep, searchYoutube };

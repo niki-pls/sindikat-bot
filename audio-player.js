@@ -51,7 +51,6 @@ class AudioPlayerWithQueue extends AudioPlayer {
 
     async play(videoURL) {
         while (!this.isReady) {
-            console.log('waiting', this);
             await sleep(100);
         }
         const trackInfo = await ytdl.getInfo(videoURL);

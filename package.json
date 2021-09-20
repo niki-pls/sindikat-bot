@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/niki-pls/sindikat-bot#readme",
   "dependencies": {
+    "@citoyasha/yt-search": "^1.0.1",
     "@discordjs/builders": "^0.6.0",
     "@discordjs/opus": "^0.5.3",
     "@discordjs/rest": "^0.1.0-canary.0",
