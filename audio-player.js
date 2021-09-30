@@ -32,8 +32,14 @@ class AudioPlayerWithQueue extends AudioPlayer {
     }
 
     onIdle () {
-        logger.info('Going IDLE');
-        this.currentlyPlaying = false;
+        if (this.hasNext()) {
+            logger.info(`Playing next song ${this.nextInQueue().title}`);
+            this.playNext();
+        }
+        else {
+            logger.info('Going IDLE');
+            this.currentlyPlaying = false;
+        }
     }
 
     playNext () {
@@ -61,7 +67,7 @@ class AudioPlayerWithQueue extends AudioPlayer {
             console.log('waiting', this);
             await sleep(100);
         }
-        const trackInfo = await ytdl.getInfo(videoURL);
+        const trackInfo = await ytdl.getInfo(videoURL, { highWaterMark: 1 << 25 });
         const track = {
             title: trackInfo.videoDetails.title,
             url: trackInfo.videoDetails.video_url,
