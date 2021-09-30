@@ -12,6 +12,7 @@ class AudioPlayerStore {
     }
 
     remove (id) {
+        this.get(id).disconnectListeners();
         return this.map.delete(id);
     }
 
@@ -20,13 +21,13 @@ class AudioPlayerStore {
             return this.get(id);
         }
         const player = new AudioPlayerWithQueue();
-        this._setupPlayer(player, connection);
+        this._setupPlayer(id, player, connection);
         this.map.set(id, player);
 
         return player;
     }
 
-    _setupPlayer (player, connection) {
+    _setupPlayer (id, player, connection) {
         player.on('error', error => {
             console.error(`Exception: ${error.message}`);
             player.stop(true);
@@ -36,14 +37,15 @@ class AudioPlayerStore {
             player.isReady = true;
         });
 
-        connection.on(VoiceConnectionStatus.Disconnected, (id) => {
+        const stop = () => {
             if (this.remove(id)) {
                 logger.info(`disconnecting from ${id}`);
                 console.log(this.map.entries());
 
                 return player.stop(true);
             }
-        });
+        };
+        connection.on(VoiceConnectionStatus.Disconnected, stop);
 
         connection.subscribe(player);
     }

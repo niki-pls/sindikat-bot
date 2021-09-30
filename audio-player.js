@@ -1,43 +1,45 @@
-const { AudioPlayer, StreamType, createAudioResource } = require('@discordjs/voice');
+const { AudioPlayer, StreamType, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const { logger, sleep } = require('./utils/utils');
 const ytdl = require('ytdl-core');
 
 
 class AudioPlayerWithQueue extends AudioPlayer {
-    constructor(...args) {
+    constructor (...args) {
         super(...args);
         this.queue = [];
         this.currentlyPlaying = null;
         this.isReady = false;
+
+        this.on(AudioPlayerStatus.Idle, this.onIdle);
     }
 
-    // get player () {
-    //     return self.player;
-    // };
-
-    enqueueResource(track) {
+    enqueueResource (track) {
         this.queue.push(track);
     }
 
-    nextInQueue() {
+    nextInQueue () {
         const queueLength = this.queue.length;
 
         if (queueLength === 0) {
             return undefined;
         }
 
-        return this.queue[queueLength - 1];
+        return this.queue[2];
     }
 
-    isCurrentlyPlaying() {
+    isCurrentlyPlaying () {
         return !!this.currentlyPlaying;
     }
 
-    playNext() {
+    onIdle () {
+        logger.info('Going IDLE');
+        this.currentlyPlaying = false;
+    }
+
+    playNext () {
         if (this.queue.length === 0) {
             return;
         }
-        this.stop(true);
         this.currentlyPlaying = null;
         console.log(this._state);
         console.log(this.queue);
@@ -45,11 +47,16 @@ class AudioPlayerWithQueue extends AudioPlayer {
         this.play(nextInQueue.url);
     }
 
-    hasNext() {
+    hasNext () {
         return !!this.queue.length;
     }
 
-    async play(videoURL) {
+    disconnectListeners () {
+        logger.info('Removing listeners');
+        this.off(AudioPlayerStatus.Idle, this.onIdle);
+    }
+
+    async play (videoURL) {
         while (!this.isReady) {
             console.log('waiting', this);
             await sleep(100);
@@ -67,12 +74,11 @@ class AudioPlayerWithQueue extends AudioPlayer {
             this.enqueueResource(track);
         }
         else {
-            logger.info(`Playing: ${resource}`);
+            logger.info(`Playing: ${track.title}`);
             this.currentlyPlaying = resource;
             super.play(resource);
         }
         return track.title;
     }
 }
-
 module.exports = AudioPlayerWithQueue;
