@@ -1,6 +1,6 @@
 const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
-const { stopwatch, getCommands } = require('./utils/utils.js');
+const { getCommands } = require('./utils/utils.js');
 
 const client = new Client({
     intents: [
@@ -25,7 +25,6 @@ client.on('interactionCreate', async interaction => {
         return;
     }
 
-    stopwatch.start('ExecutePlay');
     const command = client.commands.get(interaction.commandName);
 
     if (!command) {

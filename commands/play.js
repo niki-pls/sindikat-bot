@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const audioPlayerStore = require('../audio-player-store');
-const { stopwatch, logger } = require('../utils/utils.js');
+const { logger } = require('../utils/utils.js');
 const { joinVoiceChannel } = require('@discordjs/voice');
 
 const metadata = new SlashCommandBuilder()
@@ -11,7 +11,7 @@ const metadata = new SlashCommandBuilder()
 module.exports = {
     metadata,
 
-    async execute(message) {
+    async execute (message) {
         const { voice, guild } = message.member;
 
         if (!voice) {
@@ -19,6 +19,11 @@ module.exports = {
         }
 
         const videoURL = message.options.getString('url');
+
+        if (!videoURL) {
+            return message.reply({ content: 'No URL provided', ephemeral: true });
+        }
+
         const connection = joinVoiceChannel({
             channelId: voice.channel.id,
             guildId: guild.id,
@@ -29,11 +34,8 @@ module.exports = {
 
         const player = audioPlayerStore.create(voice.channel.id, connection);
 
-        const trackTitle = player.play(videoURL);
-        // logger.info(`Connection ready for ${voice.channel.id} : ${voice.channel.name}`);
-        console.log(audioPlayerStore.map.keys());
-        stopwatch.stop();
-        console.log('kur');
-        message.reply(`Playing ${await trackTitle}`);
+        player.play(videoURL);
+
+        message.reply('Playing');
     },
 };

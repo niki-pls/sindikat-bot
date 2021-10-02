@@ -1,6 +1,9 @@
-const { AudioPlayer, StreamType, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { AudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { join } = require('path');
+
 const { logger, sleep } = require('./utils/utils');
-const ytdl = require('ytdl-core');
+const { download } = require('./utils/download');
+const { deleteFile, getFilename } = require('./utils/fsUtils');
 
 
 class AudioPlayerWithQueue extends AudioPlayer {
@@ -24,7 +27,7 @@ class AudioPlayerWithQueue extends AudioPlayer {
             return undefined;
         }
 
-        return this.queue[2];
+        return this.queue[0];
     }
 
     isCurrentlyPlaying () {
@@ -32,6 +35,10 @@ class AudioPlayerWithQueue extends AudioPlayer {
     }
 
     onIdle () {
+        const currentTrack = this.currentlyPlaying;
+
+        deleteFile(getFilename(currentTrack));
+
         if (this.hasNext()) {
             logger.info(`Playing next song ${this.nextInQueue().title}`);
             this.playNext();
@@ -63,17 +70,27 @@ class AudioPlayerWithQueue extends AudioPlayer {
     }
 
     async play (videoURL) {
+        if (!videoURL) {
+            logger.warn('No url provided!');
+            return;
+        }
         while (!this.isReady) {
-            console.log('waiting', this);
+            // console.log('waiting', this);
             await sleep(100);
         }
-        const trackInfo = await ytdl.getInfo(videoURL, { highWaterMark: 1 << 25 });
+
+        const trackInfo = await download(videoURL);
+
         const track = {
-            title: trackInfo.videoDetails.title,
-            url: trackInfo.videoDetails.video_url,
+            title: trackInfo.songTitle,
+            ext: trackInfo.ext,
+            url: videoURL,
         };
-        const stream = ytdl(videoURL, { filter: 'audioonly' });
-        const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
+
+        const filename = getFilename(track);
+
+
+        const resource = createAudioResource(join(__dirname, `/downloads/${filename}`));
 
         if (this.isCurrentlyPlaying()) {
             logger.info(`Enquing: ${track.title}`);
@@ -81,10 +98,11 @@ class AudioPlayerWithQueue extends AudioPlayer {
         }
         else {
             logger.info(`Playing: ${track.title}`);
-            this.currentlyPlaying = resource;
+            this.currentlyPlaying = track;
             super.play(resource);
         }
         return track.title;
     }
 }
+
 module.exports = AudioPlayerWithQueue;

@@ -1,26 +1,26 @@
 const fs = require('fs');
 
 class Stopwatch {
-    constructor() {
+    constructor () {
         this.startTime = null;
         this.stopTime = null;
         this.label = 'defaultStopwatchLabel';
     }
 
-    start(label = null) {
+    start (label = null) {
         this.startTime = +new Date();
         this.stopTime = null;
         this.label = label || this.label;
         console.time(this.label);
     }
 
-    stop() {
+    stop () {
         this.stopTime = +new Date();
         console.timeEnd(this.label);
         return this.elapsed();
     }
 
-    elapsed() {
+    elapsed () {
         if (!this.stopTime) {
             return this.stop();
         }
@@ -29,20 +29,20 @@ class Stopwatch {
 }
 
 class Logger {
-    info(message) {
+    info (message) {
         console.info(new Date().toUTCString(), message);
     }
 
-    warn(message) {
+    warn (message) {
         console.warn(new Date().toUTCString(), message);
     }
 
-    error(message) {
+    error (message) {
         console.error(new Date().toUTCString(), message);
     }
 }
 
-function getCommands() {
+function getCommands () {
     return fs.readdirSync('./commands')
         .filter(file => file.endsWith('.js'))
         .map(file => require(`../commands/${file}`));
@@ -55,4 +55,4 @@ function sleep (milliseconds) {
 const stopwatch = new Stopwatch();
 const logger = new Logger();
 
-module.exports = { stopwatch, logger, getCommands, sleep };
+module.exports = { stopwatch, logger, getCommands, sleep};
