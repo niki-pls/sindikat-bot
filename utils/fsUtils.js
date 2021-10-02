@@ -15,7 +15,7 @@ async function clearDownloads () {
 async function deleteFile (filename) {
     const path = join('downloads', filename);
     logger.info(`Deleting ${path}`);
-    await fsPromies.rm(path);
+    await fsPromies.rm(path, { maxRetries: 5 });
 };
 
 module.exports = { deleteFile, getFilename, clearDownloads };

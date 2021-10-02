@@ -37,7 +37,10 @@ class AudioPlayerWithQueue extends AudioPlayer {
     onIdle () {
         const currentTrack = this.currentlyPlaying;
 
-        deleteFile(getFilename(currentTrack));
+        if (this.stop(true)) {
+            deleteFile(getFilename(currentTrack));
+        }
+
 
         if (this.hasNext()) {
             logger.info(`Playing next song ${this.nextInQueue().title}`);
