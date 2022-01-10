@@ -1,7 +1,6 @@
-const { AudioPlayer, StreamType, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { AudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const { logger, sleep } = require('./utils/utils');
-const ytdl = require('ytdl-core');
-
+const play = require('play-dl');
 
 class AudioPlayerWithQueue extends AudioPlayer {
     constructor (...args) {
@@ -24,7 +23,7 @@ class AudioPlayerWithQueue extends AudioPlayer {
             return undefined;
         }
 
-        return this.queue[2];
+        return this.queue[0];
     }
 
     isCurrentlyPlaying () {
@@ -67,13 +66,15 @@ class AudioPlayerWithQueue extends AudioPlayer {
             console.log('waiting', this);
             await sleep(100);
         }
-        const trackInfo = await ytdl.getInfo(videoURL, { highWaterMark: 1 << 25 });
+        const yt_info = await play.video_info(videoURL);
+        const stream = await play.stream_from_info(yt_info);
+
         const track = {
-            title: trackInfo.videoDetails.title,
-            url: trackInfo.videoDetails.video_url,
+            title: yt_info.video_details.title,
+            url: videoURL,
         };
-        const stream = ytdl(videoURL, { filter: 'audioonly' });
-        const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
+
+        const resource = createAudioResource(stream.stream, { inputType: stream.type });
 
         if (this.isCurrentlyPlaying()) {
             logger.info(`Enquing: ${track.title}`);
